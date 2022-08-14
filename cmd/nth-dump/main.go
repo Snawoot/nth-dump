@@ -18,6 +18,7 @@ var (
 	showVersion = flag.Bool("version", false, "show program version and exit")
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw")
+	nowait      = flag.Bool("nowait", false, "do not wait for key press after output")
 )
 
 func run() int {
@@ -54,6 +55,10 @@ func run() int {
 			fmt.Printf("Password:\t%s\n", server.Password)
 		}
 		fmt.Println("\n----------\n")
+		if !*nowait {
+			fmt.Fprintln(os.Stderr, "Press ENTER to exit...")
+			fmt.Scanln()
+		}
 	}
 
 	return 0
