@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 // Client for nthLink API backend, capable of retrieving server configuration from it.
@@ -87,11 +86,12 @@ func (c *Client) GetServerConfig(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("API response read failed: %w", err)
 	}
 
-	parts := strings.SplitN(string(respBytes), "*-*", 2)
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("data was not found in the response. parts found: %d", len(parts))
+	payload, err := VerifyResponse(string(respBytes), c.settings.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("API response verification failed: %w", err)
 	}
-	return respBytes, nil
+
+	return payload, nil
 }
 
 const readLimit int64 = 128 * 1024
