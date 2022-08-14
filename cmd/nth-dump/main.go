@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/mdp/qrterminal/v3"
+
 	"github.com/Snawoot/nth-dump/nthclient"
 )
 
@@ -20,6 +22,7 @@ var (
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw, json")
 	nowait      = flag.Bool("nowait", false, "do not wait for key press after output")
+	noqr        = flag.Bool("noqr", false, "do not print QR code with URL")
 )
 
 func run() int {
@@ -60,12 +63,17 @@ func run() int {
 		}
 
 		for _, server := range serverConfig.Servers {
+			url := server.String()
 			fmt.Println("\n----------\n")
+			if !*noqr {
+				qrterminal.Generate(url, qrterminal.L, os.Stdout)
+			}
 			fmt.Printf("Name:\t\t%s\n", server.Name)
 			fmt.Printf("Host:\t\t%s\n", server.Host)
 			fmt.Printf("Port:\t\t%d\n", server.Port)
 			fmt.Printf("Method:\t\t%s\n", server.Method)
 			fmt.Printf("Password:\t%s\n", server.Password)
+			fmt.Printf("URL:\t\t%s\n", url)
 		}
 		fmt.Println("\n----------\n")
 		if !*nowait {

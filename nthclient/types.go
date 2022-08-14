@@ -1,8 +1,10 @@
 package nthclient
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type ServerDefinition struct {
@@ -11,6 +13,11 @@ type ServerDefinition struct {
 	Method   string `json:"method"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
+}
+
+func (sd *ServerDefinition) String() string {
+	auth := base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", sd.Method, sd.Password)))
+	return fmt.Sprintf("ss://%s@%s:%d#%s", auth, sd.Host, sd.Port, url.PathEscape(sd.Name))
 }
 
 type DomainSeedTLDDefinition struct {
