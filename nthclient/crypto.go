@@ -2,6 +2,8 @@ package nthclient
 
 import (
 	"crypto"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/md5"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -37,4 +39,29 @@ func VerifyResponse(response string, pubkey *rsa.PublicKey) ([]byte, error) {
 		return nil, fmt.Errorf("signature verification failed: %w", err)
 	}
 	return []byte(parts[1]), nil
+}
+
+func Decrypt(ciphertext, key string) ([]byte, error) {
+	bytes, err := hex.DecodeString(ciphertext)
+	if err != nil {
+		return nil, fmt.Errorf("ciphertexttext hex decoding failed: %w", err)
+	}
+
+	if len(bytes) < 16 {
+		return nil, fmt.Errorf("too short ciphertext bytes len: %d", len(bytes))
+	}
+
+	iv := bytes[0:16]
+	data := bytes[16:]
+
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		return nil, fmt.Errorf("can't create block ciphertext: %w", err)
+	}
+
+	stream := cipher.NewCTR(block, iv)
+	plaintext := make([]byte, len(data))
+	stream.XORKeyStream(plaintext, data)
+
+	return plaintext, nil
 }

@@ -91,7 +91,12 @@ func (c *Client) GetServerConfig(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("API response verification failed: %w", err)
 	}
 
-	return payload, nil
+	decrypted, err := Decrypt(string(payload), c.settings.JSONSeed)
+	if err != nil {
+		return nil, fmt.Errorf("payload decryption failed: %w", err)
+	}
+
+	return decrypted, nil
 }
 
 const readLimit int64 = 128 * 1024
