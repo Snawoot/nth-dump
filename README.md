@@ -1,6 +1,6 @@
 # nth-dump
 
-nthLink API client. Retrieves shadowsocks servers and credentials. Can generate SIP-002 compatible URLs and QR codes corresponding to such URLs.
+[nthLink](https://www.nthlink.com/) API client. Retrieves shadowsocks servers and credentials. Can generate SIP-002 compatible URLs and QR codes corresponding to such URLs.
 
 ![Screenshot](https://user-images.githubusercontent.com/3524671/184556478-aaffc263-13ff-4e6f-9b3f-2dfda87cf88b.png)
 
