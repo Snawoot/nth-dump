@@ -30,10 +30,12 @@ func run() int {
 	defer cl()
 
 	nc := nthclient.New()
-	_, err := nc.GetServerConfig(ctx)
+	b, err := nc.GetServerConfig(ctx)
 	if err != nil {
 		log.Fatalf("can't get server config: %v", err)
 	}
+
+	fmt.Println(string(b))
 
 	return 0
 }

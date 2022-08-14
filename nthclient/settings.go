@@ -1,6 +1,10 @@
 package nthclient
 
-import "github.com/google/uuid"
+import (
+	"crypto/rsa"
+
+	"github.com/google/uuid"
+)
 
 const ConfigRoutePath = "/getserver-190831.php"
 
@@ -13,6 +17,8 @@ type Settings struct {
 	Language    string
 	ID          string
 	AppVersion  string
+	UserAgent   string
+	PublicKey   *rsa.PublicKey
 }
 
 // DefaultSettings is Settings with working defaults
@@ -24,4 +30,6 @@ var DefaultSettings = &Settings{
 	Language:    "en-US",
 	ID:          uuid.Must(uuid.NewRandom()).String(),
 	AppVersion:  "5.0.0",
+	UserAgent:   "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) nthLink/5.0.0 Chrome/78.0.3905.1 Electron/7.0.0 Safari/537.36",
+	PublicKey:   DefaultPublicKey(),
 }

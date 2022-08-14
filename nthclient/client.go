@@ -3,9 +3,10 @@ package nthclient
 import (
 	"context"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Client for nthLink API backend, capable of retrieving server configuration from it.
@@ -54,18 +55,53 @@ func (c *Client) prepareRequest(ctx context.Context) (*http.Request, error) {
 			"appVersion": []string{c.settings.AppVersion},
 		}.Encode(),
 	}
-	log.Printf("url = %q", url.String())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to construct request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", c.settings.UserAgent)
+	req.Header.Set("Accept-Language", c.settings.Language)
 	return req, nil
 }
 
 func (c *Client) GetServerConfig(ctx context.Context) ([]byte, error) {
-	_, err := c.prepareRequest(ctx)
+	req, err := c.prepareRequest(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to prepare request: %w", err)
 	}
-	return nil, nil
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("API request failed: %w", err)
+	}
+	defer cleanupBody(resp.Body)
+
+	rd := &io.LimitedReader{
+		R: resp.Body,
+		N: readLimit,
+	}
+
+	respBytes, err := io.ReadAll(rd)
+	if err != nil {
+		return nil, fmt.Errorf("API response read failed: %w", err)
+	}
+
+	parts := strings.SplitN(string(respBytes), "*-*", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("data was not found in the response. parts found: %d", len(parts))
+	}
+	return respBytes, nil
+}
+
+const readLimit int64 = 128 * 1024
+
+// Does cleanup of HTTP response in order to make it reusable by keep-alive
+// logic of HTTP client
+func cleanupBody(body io.ReadCloser) {
+	io.Copy(io.Discard, &io.LimitedReader{
+		R: body,
+		N: readLimit,
+	})
+	body.Close()
 }
