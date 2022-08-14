@@ -46,13 +46,14 @@ func run() int {
 		}
 
 		for _, server := range serverConfig.Servers {
-			fmt.Println("----------\n")
+			fmt.Println("\n----------\n")
 			fmt.Printf("Name:\t\t%s\n", server.Name)
 			fmt.Printf("Host:\t\t%s\n", server.Host)
 			fmt.Printf("Port:\t\t%d\n", server.Port)
 			fmt.Printf("Method:\t\t%s\n", server.Method)
 			fmt.Printf("Password:\t%s\n", server.Password)
 		}
+		fmt.Println("\n----------\n")
 	}
 
 	return 0
