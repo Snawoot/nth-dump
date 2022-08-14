@@ -23,7 +23,8 @@ type Settings struct {
 
 // DefaultSettings is Settings with working defaults
 var DefaultSettings = &Settings{
-	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+//	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+	DomainSeed:  "7thb8GDjE39iaXXjgutYbgEI8g0aqxnf",
 	PlatformKey: "jk8Gh9wweC4gF8et",
 	JSONSeed:    "Gu82kdDgus0248gzkqpsl948ab7a8dse",
 	TLD:         "info",
