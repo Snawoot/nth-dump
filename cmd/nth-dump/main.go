@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -17,7 +18,7 @@ var (
 	// global options
 	showVersion = flag.Bool("version", false, "show program version and exit")
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
-	format      = flag.String("format", "text", "output format: text, raw")
+	format      = flag.String("format", "text", "output format: text, raw, json")
 	nowait      = flag.Bool("nowait", false, "do not wait for key press after output")
 )
 
@@ -40,6 +41,18 @@ func run() int {
 	switch *format {
 	case "raw":
 		fmt.Println(string(b))
+	case "json":
+		serverConfig, err := nthclient.UnmarshalServerConfig(b)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "    ")
+
+		if err := enc.Encode(serverConfig.Servers); err != nil {
+			log.Fatalf("can't marshal server list to json: %v", err)
+		}
 	default:
 		serverConfig, err := nthclient.UnmarshalServerConfig(b)
 		if err != nil {
