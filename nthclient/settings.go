@@ -2,6 +2,8 @@ package nthclient
 
 import "github.com/google/uuid"
 
+const ConfigRoutePath = "/getserver-190831.php"
+
 // Settings define important constants required for Client operation
 type Settings struct {
 	DomainSeed  string
@@ -10,6 +12,7 @@ type Settings struct {
 	TLD         string
 	Language    string
 	ID          string
+	AppVersion  string
 }
 
 // DefaultSettings is Settings with working defaults
@@ -20,4 +23,5 @@ var DefaultSettings = &Settings{
 	TLD:         "info",
 	Language:    "en-US",
 	ID:          uuid.Must(uuid.NewRandom()).String(),
+	AppVersion:  "5.0.0",
 }
