@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/Snawoot/nth-dump/nthclient"
 )
 
 var version = "undefined"
@@ -20,6 +22,7 @@ func run() int {
 		fmt.Println(version)
 		return 0
 	}
+	log.Println(nthclient.CalculateAPIHostname(nthclient.DefaultSettings.DomainSeed, nthclient.DefaultSettings.TLD))
 	return 0
 }
 
