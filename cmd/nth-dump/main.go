@@ -17,6 +17,7 @@ var (
 	// global options
 	showVersion = flag.Bool("version", false, "show program version and exit")
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
+	format      = flag.String("format", "text", "output format: text, raw")
 )
 
 func run() int {
@@ -35,7 +36,24 @@ func run() int {
 		log.Fatalf("can't get server config: %v", err)
 	}
 
-	fmt.Println(string(b))
+	switch *format {
+	case "raw":
+		fmt.Println(string(b))
+	default:
+		serverConfig, err := nthclient.UnmarshalServerConfig(b)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, server := range serverConfig.Servers {
+			fmt.Println("----------\n")
+			fmt.Printf("Name:\t\t%s\n", server.Name)
+			fmt.Printf("Host:\t\t%s\n", server.Host)
+			fmt.Printf("Port:\t\t%d\n", server.Port)
+			fmt.Printf("Method:\t\t%s\n", server.Method)
+			fmt.Printf("Password:\t%s\n", server.Password)
+		}
+	}
 
 	return 0
 }
