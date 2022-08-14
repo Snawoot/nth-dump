@@ -21,8 +21,6 @@ var (
 	showVersion = flag.Bool("version", false, "show program version and exit")
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw, json")
-	nowait      = flag.Bool("nowait", false, "do not wait for key press after output")
-	noqr        = flag.Bool("noqr", false, "do not print QR code with URL")
 )
 
 func run() int {
