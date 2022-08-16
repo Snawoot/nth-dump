@@ -21,6 +21,7 @@ var (
 	showVersion = flag.Bool("version", false, "show program version and exit")
 	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw, json")
+	urlFormat   = flag.String("url-format", "sip002", "output URL format: sip002, sip002u, sip002qs")
 )
 
 func run() int {
@@ -61,7 +62,15 @@ func run() int {
 		}
 
 		for _, server := range serverConfig.Servers {
-			url := server.String()
+			var url string
+			switch *urlFormat {
+			case "sip002u":
+				url = server.Format(nthclient.FormatSIP002Unshielded)
+			case "sip002qs":
+				url = server.Format(nthclient.FormatSIP002QSAuth)
+			default:
+				url = server.Format(nthclient.FormatSIP002)
+			}
 			fmt.Println("\n----------\n")
 			if !*noqr {
 				qrterminal.Generate(url, qrterminal.L, os.Stdout)
