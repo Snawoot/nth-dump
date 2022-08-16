@@ -48,6 +48,8 @@ Usage of /home/user/go/bin/nth-dump:
     	do not wait for key press after output (default true)
   -timeout duration
     	operation timeout (default 10s)
+  -url-format string
+    	output URL format: sip002, sip002u, sip002qs (default "sip002")
   -version
     	show program version and exit
 ```
