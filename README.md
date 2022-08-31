@@ -46,10 +46,13 @@ Usage of /home/user/go/bin/nth-dump:
     	do not print QR code with URL
   -nowait
     	do not wait for key press after output (default true)
+  -profile string
+    	secrets and constants profile (android/win/mac/ios) (default "android")
   -timeout duration
-    	operation timeout (default 10s)
+    	operation timeout (default 30s)
   -url-format string
     	output URL format: sip002, sip002u, sip002qs (default "sip002")
   -version
     	show program version and exit
+
 ```
