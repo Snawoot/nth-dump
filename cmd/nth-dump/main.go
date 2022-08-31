@@ -22,6 +22,7 @@ var (
 	timeout     = flag.Duration("timeout", 30*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw, json")
 	urlFormat   = flag.String("url-format", "sip002", "output URL format: sip002, sip002u, sip002qs")
+	profile     = flag.String("profile", "android", "secrets and constants profile (android/win/mac/ios)")
 )
 
 func run() int {
@@ -35,6 +36,16 @@ func run() int {
 	defer cl()
 
 	nc := nthclient.New()
+	switch (*profile) {
+	case "mac":
+		nc = nc.WithSettings(nthclient.DefaultMacSettings)
+	case "win":
+		nc = nc.WithSettings(nthclient.DefaultWinSettings)
+	case "ios":
+		nc = nc.WithSettings(nthclient.DefaultIOSSettings)
+	case "android":
+		nc = nc.WithSettings(nthclient.DefaultAndroidSettings)
+	}
 	b, err := nc.GetServerConfig(ctx)
 	if err != nil {
 		log.Fatalf("can't get server config: %v", err)

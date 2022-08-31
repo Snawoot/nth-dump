@@ -24,8 +24,7 @@ type Settings struct {
 	Timeout       time.Duration
 }
 
-// DefaultSettings is Settings with working defaults
-var DefaultSettings = &Settings{
+var DefaultWinSettings = &Settings{
 	DomainSeed: "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
 	//DomainSeed:  "7thb8GDjE39iaXXjgutYbgEI8g0aqxnf",
 	PlatformKey: "jk8Gh9wweC4gF8et",
@@ -43,3 +42,60 @@ var DefaultSettings = &Settings{
 	},
 	Timeout: 5 * time.Second,
 }
+
+var DefaultIOSSettings = &Settings{
+	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+	PlatformKey: "gvaiDcY7Z5ufX4b6",
+	JSONSeed:    "Gu82kdDgus0248gzkqpsl948ab7a8dse",
+	TLD:         "info",
+	Language:    "en-US",
+	ID:          uuid.Must(uuid.NewRandom()).String(),
+	AppVersion:  "5.1.0",
+	UserAgent:   "",
+	PublicKey:   DefaultPublicKey(),
+	BackupDomains: []string{
+		"https://s3.us-west-1.amazonaws.com/nthassets/getserver.i",
+		"https://s3-ap-northeast-1.amazonaws.com/nthassets-tokyo/getserver.i",
+		"https://s3.eu-west-2.amazonaws.com/nthassets-london/getserver.i",
+	},
+	Timeout: 5 * time.Second,
+}
+
+var DefaultAndroidSettings = &Settings{
+	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+	PlatformKey: "Cxgh48fDSJhiWpk9",
+	JSONSeed:    "Gu82kdDgus0248gzkqpsl948ab7a8dse",
+	TLD:         "info",
+	Language:    "en-US",
+	ID:          uuid.Must(uuid.NewRandom()).String(),
+	AppVersion:  "5.1.0",
+	UserAgent:   "",
+	PublicKey:   DefaultPublicKey(),
+	BackupDomains: []string{
+		"https://s3.us-west-1.amazonaws.com/nthassets/getserver.a",
+		"https://s3-ap-northeast-1.amazonaws.com/nthassets-tokyo/getserver.a",
+		"https://s3.eu-west-2.amazonaws.com/nthassets-london/getserver.a",
+	},
+	Timeout: 5 * time.Second,
+}
+
+var DefaultMacSettings = &Settings{
+	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+	PlatformKey: "HnxjpP2gd6sZGdkh",
+	JSONSeed:    "Gu82kdDgus0248gzkqpsl948ab7a8dse",
+	TLD:         "info",
+	Language:    "en-US",
+	ID:          uuid.Must(uuid.NewRandom()).String(),
+	AppVersion:  "5.1.0",
+	UserAgent:   "",
+	PublicKey:   DefaultPublicKey(),
+	BackupDomains: []string{
+		"https://s3.us-west-1.amazonaws.com/nthassets/getserver.m",
+		"https://s3-ap-northeast-1.amazonaws.com/nthassets-tokyo/getserver.m",
+		"https://s3.eu-west-2.amazonaws.com/nthassets-london/getserver.m",
+	},
+	Timeout: 5 * time.Second,
+}
+
+// DefaultSettings is Settings with working defaults
+var DefaultSettings = DefaultAndroidSettings

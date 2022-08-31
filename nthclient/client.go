@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -59,6 +60,7 @@ func (c *Client) prepareRequest(ctx context.Context, urlString string) (*http.Re
 		}
 		urlString = urlObject.String()
 	}
+	log.Printf("trying URL: %q", urlString)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, urlString, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to construct request: %w", err)
@@ -71,6 +73,11 @@ func (c *Client) prepareRequest(ctx context.Context, urlString string) (*http.Re
 
 func (c *Client) getEncryptedBody(ctx context.Context) ([]byte, error) {
 	var resErr error
+	defer func() {
+		if resErr != nil {
+			log.Printf("getEncryptedBody(): errors occured: %v", resErr)
+		}
+	}()
 	targets := append([]string{"", "", ""}, c.settings.BackupDomains...)
 	for _, urlString := range targets {
 		ctx1, cl := context.WithTimeout(ctx, c.settings.Timeout)
