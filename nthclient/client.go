@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/hashicorp/go-multierror"
 )
 
 // Client for nthLink API backend, capable of retrieving server configuration from it.
@@ -42,19 +44,22 @@ func (c *Client) WithSettings(settings *Settings) *Client {
 	return newClient
 }
 
-func (c *Client) prepareRequest(ctx context.Context) (*http.Request, error) {
-	url := url.URL{
-		Scheme: "https",
-		Host:   CalculateAPIHostname(c.settings.DomainSeed, c.settings.TLD),
-		Path:   ConfigRoutePath,
-		RawQuery: url.Values{
-			"key":        []string{c.settings.PlatformKey},
-			"id":         []string{c.settings.ID},
-			"lang":       []string{c.settings.Language},
-			"appVersion": []string{c.settings.AppVersion},
-		}.Encode(),
+func (c *Client) prepareRequest(ctx context.Context, urlString string) (*http.Request, error) {
+	if urlString == "" {
+		urlObject := url.URL{
+			Scheme: "https",
+			Host:   CalculateAPIHostname(c.settings.DomainSeed, c.settings.TLD),
+			Path:   ConfigRoutePath,
+			RawQuery: url.Values{
+				"key":        []string{c.settings.PlatformKey},
+				"id":         []string{c.settings.ID},
+				"lang":       []string{c.settings.Language},
+				"appVersion": []string{c.settings.AppVersion},
+			}.Encode(),
+		}
+		urlString = urlObject.String()
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, urlString, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to construct request: %w", err)
 	}
@@ -64,39 +69,63 @@ func (c *Client) prepareRequest(ctx context.Context) (*http.Request, error) {
 	return req, nil
 }
 
+func (c *Client) getEncryptedBody(ctx context.Context) ([]byte, error) {
+	var resErr error
+	targets := append([]string{"", "", ""}, c.settings.BackupDomains...)
+	for _, urlString := range targets {
+		ctx1, cl := context.WithTimeout(ctx, c.settings.Timeout)
+		defer cl()
+		req, err := c.prepareRequest(ctx1, urlString)
+		if err != nil {
+			resErr = multierror.Append(resErr, fmt.Errorf("unable to prepare request: %w", err))
+			continue
+		}
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			resErr = multierror.Append(resErr, fmt.Errorf("API request failed: %w", err))
+			continue
+		}
+		defer cleanupBody(resp.Body)
+
+		rd := &io.LimitedReader{
+			R: resp.Body,
+			N: readLimit,
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			respBytes, _ := io.ReadAll(rd)
+			resErr = multierror.Append(resErr,
+				fmt.Errorf("bad status code from API: code = %d, body = %q", resp.StatusCode, string(respBytes)),
+			)
+			continue
+		}
+
+		respBytes, err := io.ReadAll(rd)
+		if err != nil {
+			resErr = multierror.Append(resErr, fmt.Errorf("API response read failed: %w", err))
+			continue
+		}
+
+		payload, err := VerifyResponse(string(respBytes), c.settings.PublicKey)
+		if err != nil {
+			resErr = multierror.Append(resErr, fmt.Errorf("API response verification failed: %w", err))
+			continue
+		}
+
+		decrypted, err := Decrypt(string(payload), c.settings.JSONSeed)
+		if err != nil {
+			resErr = multierror.Append(resErr, fmt.Errorf("payload decryption failed: %w", err))
+			continue
+		}
+
+		return decrypted, nil
+	}
+	return nil, resErr
+}
+
 func (c *Client) GetServerConfig(ctx context.Context) ([]byte, error) {
-	req, err := c.prepareRequest(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("unable to prepare request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("API request failed: %w", err)
-	}
-	defer cleanupBody(resp.Body)
-
-	rd := &io.LimitedReader{
-		R: resp.Body,
-		N: readLimit,
-	}
-
-	respBytes, err := io.ReadAll(rd)
-	if err != nil {
-		return nil, fmt.Errorf("API response read failed: %w", err)
-	}
-
-	payload, err := VerifyResponse(string(respBytes), c.settings.PublicKey)
-	if err != nil {
-		return nil, fmt.Errorf("API response verification failed: %w", err)
-	}
-
-	decrypted, err := Decrypt(string(payload), c.settings.JSONSeed)
-	if err != nil {
-		return nil, fmt.Errorf("payload decryption failed: %w", err)
-	}
-
-	return decrypted, nil
+	return c.getEncryptedBody(ctx)
 }
 
 const readLimit int64 = 128 * 1024
