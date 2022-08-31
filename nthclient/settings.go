@@ -79,5 +79,23 @@ var DefaultAndroidSettings = &Settings{
 	Timeout: 5 * time.Second,
 }
 
+var DefaultMacSettings = &Settings{
+	DomainSeed:  "ewriWabKW6aMTa2W7vFNxKqgUutgpWwH",
+	PlatformKey: "HnxjpP2gd6sZGdkh",
+	JSONSeed:    "Gu82kdDgus0248gzkqpsl948ab7a8dse",
+	TLD:         "info",
+	Language:    "en-US",
+	ID:          uuid.Must(uuid.NewRandom()).String(),
+	AppVersion:  "5.1.0",
+	UserAgent:   "",
+	PublicKey:   DefaultPublicKey(),
+	BackupDomains: []string{
+		"https://s3.us-west-1.amazonaws.com/nthassets/getserver.m",
+		"https://s3-ap-northeast-1.amazonaws.com/nthassets-tokyo/getserver.m",
+		"https://s3.eu-west-2.amazonaws.com/nthassets-london/getserver.m",
+	},
+	Timeout: 5 * time.Second,
+}
+
 // DefaultSettings is Settings with working defaults
 var DefaultSettings = DefaultAndroidSettings
