@@ -25,7 +25,7 @@ func CalculateAPIHostname(seed, tld string) string {
 func VerifyResponse(response string, pubkey *rsa.PublicKey) ([]byte, error) {
 	parts := strings.SplitN(response, "*-*", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("data was not found in the response. parts found: %d", len(parts))
+		return nil, fmt.Errorf("data was not found in the response. parts found: %d, response: %q", len(parts), response)
 	}
 
 	signature, err := base64.StdEncoding.DecodeString(parts[0])

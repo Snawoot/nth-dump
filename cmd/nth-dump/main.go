@@ -19,7 +19,7 @@ var version = "undefined"
 var (
 	// global options
 	showVersion = flag.Bool("version", false, "show program version and exit")
-	timeout     = flag.Duration("timeout", 10*time.Second, "operation timeout")
+	timeout     = flag.Duration("timeout", 30*time.Second, "operation timeout")
 	format      = flag.String("format", "text", "output format: text, raw, json")
 	urlFormat   = flag.String("url-format", "sip002", "output URL format: sip002, sip002u, sip002qs")
 )
