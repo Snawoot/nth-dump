@@ -24,6 +24,7 @@ var (
 	urlFormat   = flag.String("url-format", "sip002", "output URL format: sip002, sip002u, sip002qs")
 	profile     = flag.String("profile", "android", "secrets and constants profile (android/win/mac/ios)")
 	loadProfile = flag.String("load-profile", "", "load JSON with settings profile from file")
+	saveProfile = flag.String("save-profile", "", "save JSON profile for chosen configuration and exit")
 )
 
 func run() int {
@@ -36,26 +37,35 @@ func run() int {
 	ctx, cl := context.WithTimeout(context.Background(), *timeout)
 	defer cl()
 
-	nc := nthclient.New()
+	settings := nthclient.DefaultSettings
 	switch *profile {
 	case "mac":
-		nc = nc.WithSettings(nthclient.DefaultMacSettings)
+		settings = nthclient.DefaultMacSettings
 	case "win":
-		nc = nc.WithSettings(nthclient.DefaultWinSettings)
+		settings = nthclient.DefaultWinSettings
 	case "ios":
-		nc = nc.WithSettings(nthclient.DefaultIOSSettings)
+		settings = nthclient.DefaultIOSSettings
 	case "android":
-		nc = nc.WithSettings(nthclient.DefaultAndroidSettings)
+		settings = nthclient.DefaultAndroidSettings
 	}
 
 	if *loadProfile != "" {
-		settings, err := loadSettings(*loadProfile)
+		loadedSettings, err := loadSettings(*loadProfile)
 		if err != nil {
 			log.Fatalf("unable to load settings file: %v", err)
 		}
-		nc = nc.WithSettings(settings)
+		settings = loadedSettings
 	}
 
+	if *saveProfile != "" {
+		err := saveSettings(*saveProfile, settings)
+		if err != nil {
+			log.Fatalf("unable to save settings file: %v", err)
+		}
+		return 0
+	}
+
+	nc := nthclient.New().WithSettings(settings)
 	b, err := nc.GetServerConfig(ctx)
 	if err != nil {
 		log.Fatalf("can't get server config: %v", err)
@@ -128,6 +138,19 @@ func loadSettings(filename string) (*nthclient.Settings, error) {
 	}
 
 	return &state, nil
+}
+
+func saveSettings(filename string, state *nthclient.Settings) error {
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	enc := json.NewEncoder(file)
+	enc.SetIndent("", "    ")
+	err = enc.Encode(state)
+	return err
 }
 
 func main() {

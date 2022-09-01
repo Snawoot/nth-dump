@@ -50,6 +50,8 @@ Usage of /home/user/go/bin/nth-dump:
     	do not wait for key press after output (default true)
   -profile string
     	secrets and constants profile (android/win/mac/ios) (default "android")
+  -save-profile string
+    	save JSON profile for chosen configuration and exit
   -timeout duration
     	operation timeout (default 30s)
   -url-format string
