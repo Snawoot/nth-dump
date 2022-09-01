@@ -42,6 +42,8 @@ $ nth-dump -h
 Usage of /home/user/go/bin/nth-dump:
   -format string
     	output format: text, raw, json (default "text")
+  -load-profile string
+    	load JSON with settings profile from file
   -noqr
     	do not print QR code with URL
   -nowait
@@ -54,5 +56,4 @@ Usage of /home/user/go/bin/nth-dump:
     	output URL format: sip002, sip002u, sip002qs (default "sip002")
   -version
     	show program version and exit
-
 ```
