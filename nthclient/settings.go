@@ -11,17 +11,17 @@ const ConfigRoutePath = "/getserver-190831.php"
 
 // Settings define important constants required for Client operation
 type Settings struct {
-	DomainSeed    string
-	PlatformKey   string
-	JSONSeed      string
-	TLD           string
-	Language      string
-	ID            string
-	AppVersion    string
-	UserAgent     string
-	PublicKey     *rsa.PublicKey
-	BackupDomains []string
-	Timeout       time.Duration
+	DomainSeed    string         `json:"domainSeed"`
+	PlatformKey   string         `json:"platformKey"`
+	JSONSeed      string         `json:"jsonSeed"`
+	TLD           string         `json:"tld"`
+	Language      string         `json:"lang"`
+	ID            string         `json:"id"`
+	AppVersion    string         `json:"appVersion"`
+	UserAgent     string         `json:"userAgent"`
+	PublicKey     *rsa.PublicKey `json:"publicKey"`
+	BackupDomains []string       `json:"backupDomains"`
+	Timeout       time.Duration  `json:"timeout"`
 }
 
 var DefaultWinSettings = &Settings{

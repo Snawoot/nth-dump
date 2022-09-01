@@ -23,6 +23,7 @@ var (
 	format      = flag.String("format", "text", "output format: text, raw, json")
 	urlFormat   = flag.String("url-format", "sip002", "output URL format: sip002, sip002u, sip002qs")
 	profile     = flag.String("profile", "android", "secrets and constants profile (android/win/mac/ios)")
+	loadProfile = flag.String("load-profile", "", "load JSON with settings profile from file")
 )
 
 func run() int {
@@ -36,7 +37,7 @@ func run() int {
 	defer cl()
 
 	nc := nthclient.New()
-	switch (*profile) {
+	switch *profile {
 	case "mac":
 		nc = nc.WithSettings(nthclient.DefaultMacSettings)
 	case "win":
@@ -46,6 +47,15 @@ func run() int {
 	case "android":
 		nc = nc.WithSettings(nthclient.DefaultAndroidSettings)
 	}
+
+	if *loadProfile != "" {
+		settings, err := loadSettings(*loadProfile)
+		if err != nil {
+			log.Fatalf("unable to load settings file: %v", err)
+		}
+		nc = nc.WithSettings(settings)
+	}
+
 	b, err := nc.GetServerConfig(ctx)
 	if err != nil {
 		log.Fatalf("can't get server config: %v", err)
@@ -101,6 +111,23 @@ func run() int {
 	}
 
 	return 0
+}
+
+func loadSettings(filename string) (*nthclient.Settings, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var state nthclient.Settings
+	dec := json.NewDecoder(file)
+	err = dec.Decode(&state)
+	if err != nil {
+		return nil, err
+	}
+
+	return &state, nil
 }
 
 func main() {
