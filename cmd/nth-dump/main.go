@@ -36,7 +36,7 @@ func run() int {
 	defer cl()
 
 	nc := nthclient.New()
-	switch (*profile) {
+	switch *profile {
 	case "mac":
 		nc = nc.WithSettings(nthclient.DefaultMacSettings)
 	case "win":
